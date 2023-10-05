@@ -94,7 +94,7 @@ def parse_file():
                 # If line is not empty
                 if stripped_line:  
                     code_lines.append(stripped_line)
-                    addresses.append(format(address, 'x'))
+                    addresses.append(hex(address))
                     address += 4
     except FileNotFoundError:
         print(f"Error: File '{input_file}' not found.")
@@ -102,9 +102,12 @@ def parse_file():
 
 # Parse the each line from the input file into the address, mnemonic, and operands
 def parse_instr():
-    line = code_lines[registers["PC"]].strip()
 
-    print(f"Line: {line}")
+    line_num = addresses.index(hex(registers["PC"]))
+
+    line = code_lines[line_num]
+
+    print(f"Line #{line_num}: \t{line}")
     
     # Split line into parts based on whitespace
     parts = line.split()
@@ -117,11 +120,11 @@ def parse_instr():
         
         # Check that PC lines up with address from line
         # TODO do we even need this?
-        address = parts[0].strip(':')
-        addr_hex = "0x"+address
-        pc = registers["PC"] * 4
-        if hex(pc) != addr_hex:
-            raise ValueError(f"Error: stack_mem address error:\nPC: {pc}\nAddr from input: {address}")
+        # address = parts[0].strip(':')
+        # addr_hex = "0x"+address
+        # pc = registers["PC"] * 4
+        # if hex(pc) != addr_hex:
+        #     raise ValueError(f"Error: stack_mem address error:\nPC: {pc}\nAddr from input: {address}")
 
         # Combine pre-index operands back into a single operand because whitespace split
         if len(ops) >= 3 and ops[1].startswith('['):
@@ -139,14 +142,8 @@ def parse_instr():
     return mnemonic, ops
 
 # Parse operand strings and return values
-# TODO Task 1 printing - mnemonics and operands
-#   op = op.replace(',', '').strip()
-#   print(f"Operand: {op}")
 # TODO Task 6 - 32 bit registers
 def parse_op(op):  
-
-    print(f"Operand: {op}")
-
     if op.startswith("XZR"):
         return 0
     
@@ -184,8 +181,7 @@ def parse_op(op):
 # Instruction emulation
 # TODO the things
 def emulate():
-    while registers["PC"] < len(code_lines):
-        
+    while addresses.index(hex(registers["PC"])) < len(code_lines):        
         mnemonic, ops = parse_instr()
             
         if mnemonic == "SUB":
@@ -223,7 +219,7 @@ def emulate():
                    
         elif mnemonic == "B":
             target_addr = ops[0]
-            registers["PC"] = addresses.index(target_addr)
+            registers["PC"] = int(target_addr,16)
             continue
 
         elif mnemonic == "B.GT":
@@ -236,7 +232,7 @@ def emulate():
             rn = parse_op(ops[0])
             imm = parse_op(ops[1])
             if rn < imm:
-                registers["PC"] += 1  # Skip next instruction
+                registers["PC"] += 4  # Skip next instruction
         
         elif mnemonic == "RET":
             return
@@ -245,7 +241,7 @@ def emulate():
             raise ValueError(f"Error: Mnemonic '{mnemonic}' not handled by this application")
         
         
-        registers["PC"] += 1
+        registers["PC"] += 4
 
 #################################################################
 #                           Main
@@ -254,6 +250,7 @@ def emulate():
 def main():
     parse_file()
     emulate()
+
 
 
 #################################################################
