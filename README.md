@@ -2,8 +2,6 @@
 Python ARM64 emulator
 
 ## Installation
-Install the required modules
-
 ```
 pip install -r requirements.txt
 ```
