@@ -87,23 +87,22 @@ def parse_file():
 
     try:
         with open(input_file, 'r') as f:
-            address = 0 
             for line in f:
                 stripped_line = re.sub(r'//.*$', '', line).strip() # strip comments and extra whitespace
 
                 # If line is not empty
                 if stripped_line:  
                     code_lines.append(stripped_line)
-                    addresses.append(hex(address))
-                    address += 4
+                    address = int(line.split()[0].strip(':'),16) # Extract address from first field
+                    addresses.append(address)
     except FileNotFoundError:
         print(f"Error: File '{input_file}' not found.")
         sys.exit(1)
 
-# Parse the each line from the input file into the address, mnemonic, and operands
+# Parse the line from the input file corresponding to the current PC into the mnemonic and operands
 def parse_instr():
 
-    line_num = addresses.index(hex(registers["PC"]))
+    line_num = addresses.index(registers["PC"])
 
     line = code_lines[line_num]
 
@@ -114,18 +113,10 @@ def parse_instr():
     
     # If line is not empty
     if len(parts) > 2:
-        # Get mnemonic and operands
+        
         mnemonic = parts[2].upper()
         ops = [i.upper() for i in parts[3:]]
         
-        # Check that PC lines up with address from line
-        # TODO do we even need this?
-        # address = parts[0].strip(':')
-        # addr_hex = "0x"+address
-        # pc = registers["PC"] * 4
-        # if hex(pc) != addr_hex:
-        #     raise ValueError(f"Error: stack_mem address error:\nPC: {pc}\nAddr from input: {address}")
-
         # Combine pre-index operands back into a single operand because whitespace split
         if len(ops) >= 3 and ops[1].startswith('['):
             ops[1] = ops[1] + ops[2]
@@ -134,7 +125,7 @@ def parse_instr():
         # Remove commas from non-pre-index operands 
         for i in range(len(ops)):
             if not ops[i].startswith('['):
-                ops[i] = ops[i].replace(',', '')
+                ops[i] = ops[i].strip(',')
 
     else:
         pass #empty line TODO ?
@@ -181,7 +172,7 @@ def parse_op(op):
 # Instruction emulation
 # TODO the things
 def emulate():
-    while addresses.index(hex(registers["PC"])) < len(code_lines):        
+    while True:
         mnemonic, ops = parse_instr()
             
         if mnemonic == "SUB":
@@ -249,7 +240,11 @@ def emulate():
 
 def main():
     parse_file()
+    s = "Program Logic Flow:"
+    print(dash_line + "\n" + s.center(80) + "\n" + dash_line)
     emulate()
+    print_reg()
+    print_stack()
 
 
 
