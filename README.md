@@ -11,7 +11,7 @@ pip install -r requirements.txt
 python3 ./main.py <file>
 ```
 
-Input file must be in the ```objdump``` format, starting on address '0'
+Input file must be in the ```objdump``` format, starting on address ```0```
 
 ### Example Input
 
