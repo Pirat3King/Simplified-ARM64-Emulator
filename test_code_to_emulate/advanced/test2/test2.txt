@@ -1,0 +1,31 @@
+   0:	d100c3ff 	sub	sp, sp, #0x30
+   4:	f90017ff 	str	xzr, [sp, #40]
+   8:	14000009 	b	2c <main+0x2c>
+   c:	f94017e0 	ldr	x0, [sp, #40]
+  10:	12001c02 	and	w2, w0, #0xff
+  14:	f94017e0 	ldr	x0, [sp, #40]
+  18:	910043e1 	add	x1, sp, #0x10
+  1c:	38206822 	strb	w2, [x1, x0]
+  20:	f94017e0 	ldr	x0, [sp, #40]
+  24:	91000400 	add	x0, x0, #0x1
+  28:	f90017e0 	str	x0, [sp, #40]
+  2c:	f94017e0 	ldr	x0, [sp, #40]
+  30:	f1003c1f 	cmp	x0, #0xf
+  34:	54fffecd 	b.le	c <main+0xc>
+  38:	f90013ff 	str	xzr, [sp, #32]
+  3c:	1400000a 	b	64 <main+0x64>
+  40:	f94013e0 	ldr	x0, [sp, #32]
+  44:	910043e1 	add	x1, sp, #0x10
+  48:	38606822 	ldrb	w2, [x1, x0]
+  4c:	f94013e0 	ldr	x0, [sp, #32]
+  50:	910003e1 	mov	x1, sp
+  54:	38206822 	strb	w2, [x1, x0]
+  58:	f94013e0 	ldr	x0, [sp, #32]
+  5c:	91000400 	add	x0, x0, #0x1
+  60:	f90013e0 	str	x0, [sp, #32]
+  64:	f94013e0 	ldr	x0, [sp, #32]
+  68:	f1003c1f 	cmp	x0, #0xf
+  6c:	54fffead 	b.le	40 <main+0x40>
+  70:	52800000 	mov	w0, #0x0                   	// #0
+  74:	9100c3ff 	add	sp, sp, #0x30
+  78:	d65f03c0 	ret

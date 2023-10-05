@@ -1,0 +1,20 @@
+   0:	d10043ff 	sub	sp, sp, #0x10
+   4:	d28000a0 	mov	x0, #0x5                   	// #5
+   8:	f90007e0 	str	x0, [sp, #8]
+   c:	f90003ff 	str	xzr, [sp]
+  10:	14000009 	b	34 <main+0x34>
+  14:	f94007e0 	ldr	x0, [sp, #8]
+  18:	d1000400 	sub	x0, x0, #0x1
+  1c:	f94007e1 	ldr	x1, [sp, #8]
+  20:	9b007c20 	mul	x0, x1, x0
+  24:	f90003e0 	str	x0, [sp]
+  28:	f94007e0 	ldr	x0, [sp, #8]
+  2c:	d1000400 	sub	x0, x0, #0x1
+  30:	f90007e0 	str	x0, [sp, #8]
+  34:	f94007e0 	ldr	x0, [sp, #8]
+  38:	f100041f 	cmp	x0, #0x1
+  3c:	54fffecc 	b.gt	14 <main+0x14>
+  40:	d503201f 	nop
+  44:	d503201f 	nop
+  48:	910043ff 	add	sp, sp, #0x10
+  4c:	d65f03c0 	ret

@@ -1,0 +1,18 @@
+   0:	d100c3ff 	sub	sp, sp, #0x30
+   4:	d2800040 	mov	x0, #0x2                   	// #2
+   8:	f90017e0 	str	x0, [sp, #40]
+   c:	d2800060 	mov	x0, #0x3                   	// #3
+  10:	f90013e0 	str	x0, [sp, #32]
+  14:	f94017e0 	ldr	x0, [sp, #40]
+  18:	9b007c00 	mul	x0, x0, x0
+  1c:	f9000fe0 	str	x0, [sp, #24]
+  20:	f94013e0 	ldr	x0, [sp, #32]
+  24:	9b007c00 	mul	x0, x0, x0
+  28:	f9000be0 	str	x0, [sp, #16]
+  2c:	f9400fe1 	ldr	x1, [sp, #24]
+  30:	f9400be0 	ldr	x0, [sp, #16]
+  34:	8b000020 	add	x0, x1, x0
+  38:	f90007e0 	str	x0, [sp, #8]
+  3c:	d503201f 	nop
+  40:	9100c3ff 	add	sp, sp, #0x30
+  44:	d65f03c0 	ret
