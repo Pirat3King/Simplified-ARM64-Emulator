@@ -35,8 +35,8 @@ def print_reg():
     print(dash_line + "\n" + s.center(80) + "\n" + dash_line)
 
     for k, v in registers.items():
-        #v_hex = f'0x{v:016x}'
-        print(f"{k}: {v}")
+        v_hex = f'0x{v:016x}'
+        print(f"{k}: {v_hex}")
     print(f"N bit: {int(flag_n)}")
     print(f"Z bit: {int(flag_z)}")
 
