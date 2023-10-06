@@ -205,12 +205,12 @@ def emulate():
             addr = parse_op(ops[1])
 
             if addr < 0 or addr + 7 >= len(stack_mem):
-                print("Error: Memory access out of bounds")
-                #raise ValueError("Error: Memory access out of bounds")
+                #print("Error: Memory access out of bounds")
+                raise ValueError("Error: Memory access out of bounds")
 
             val = 0
-            #for i in range(8):
-                #val |= (stack_mem[addr + i] << (i * 8)) # Read 8 "bytes" of memory and merge into 1 
+            for i in range(8):
+                val |= (stack_mem[addr + i] << (i * 8)) # Read 8 "bytes" of memory and merge into 1 
 
             registers[rt] = val
         
@@ -219,8 +219,8 @@ def emulate():
             addr = parse_op(ops[1])
             
             if addr < 0 or addr >= len(stack_mem):
-                print("Error: Memory access out of bounds")
-                #raise ValueError("Error: Memory access out of bounds")  
+                #print("Error: Memory access out of bounds")
+                raise ValueError("Error: Memory access out of bounds")  
 
             registers[rt] = stack_mem[addr]
 
