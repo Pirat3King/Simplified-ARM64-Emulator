@@ -35,10 +35,10 @@ def print_reg():
     print(dash_line + "\n" + s.center(80) + "\n" + dash_line)
 
     for k, v in registers.items():
-        v_hex = f'0x{v:016x}'
-        print(f"{k}: {v_hex}")
-    print(f"N bit: {n_bit}")
-    print(f"Z bit: {z_bit}")
+        #v_hex = f'0x{v:016x}'
+        print(f"{k}: {v}")
+    print(f"N bit: {int(flag_n)}")
+    print(f"Z bit: {int(flag_z)}")
 
 # Print current stack memory
 def print_stack():
@@ -49,6 +49,7 @@ def print_stack():
     stack_bytes = bytes(stack_mem)
     hexdump.hexdump(stack_bytes)
 
+#Not sure if we actually need these, but good to have
 # Stack push with SP register
 def stack_push(value):
     sp_value = registers["SP"]
@@ -60,7 +61,7 @@ def stack_push(value):
         sp_value -= 1
         registers["SP"] = sp_value
     else:
-        print("Stack overflow")
+        raise ValueError("Stack overflow")
 
 # Stack pop with SP register
 def stack_pop():
@@ -75,7 +76,7 @@ def stack_pop():
         
         return value
     else:
-        print("Stack underflow")
+        raise ValueError("Stack underflow")
 
 #################################################################
 #                           Parsers
@@ -100,8 +101,7 @@ def parse_file():
         sys.exit(1)
 
 # Parse the line from the input file corresponding to the current PC into the mnemonic and operands
-def parse_instr():
-
+def parse_instr(): 
     line_num = addresses.index(registers["PC"])
 
     line = code_lines[line_num]
@@ -160,8 +160,9 @@ def parse_op(op):
             offset = parse_op(parts[1].strip())
             return base_reg + offset
         
-        elif len(parts) == 1:
+        else:
             return base_reg
+
     else:
         raise ValueError(f"Error: Operand '{op}' not handled by this application")
 
@@ -200,30 +201,54 @@ def emulate():
             pass
         
         elif mnemonic == "LDR":
-            pass
+            rt = ops[0]
+            addr = parse_op(ops[1])
+
+            if addr < 0 or addr + 7 >= len(stack_mem):
+                print("Error: Memory access out of bounds")
+                #raise ValueError("Error: Memory access out of bounds")
+
+            val = 0
+            #for i in range(8):
+                #val |= (stack_mem[addr + i] << (i * 8)) # Read 8 "bytes" of memory and merge into 1 
+
+            registers[rt] = val
         
         elif mnemonic == "LDRB":
-            pass
+            rt = ops[0]
+            addr = parse_op(ops[1])
+            
+            if addr < 0 or addr >= len(stack_mem):
+                print("Error: Memory access out of bounds")
+                #raise ValueError("Error: Memory access out of bounds")  
+
+            registers[rt] = stack_mem[addr]
 
         elif mnemonic == "NOP":
             pass
                    
         elif mnemonic == "B":
-            target_addr = ops[0]
-            registers["PC"] = int(target_addr,16)
+            registers["PC"] = int(ops[0],16)
             continue
 
         elif mnemonic == "B.GT":
-            pass
+            if not flag_n and not flag_z:
+                registers["PC"] = int(ops[0],16)
+                continue
 
         elif mnemonic == "B.LE":
-            pass
+            if flag_n or flag_z:
+                registers["PC"] = int(ops[0],16)
+                continue
         
         elif mnemonic == "CMP":
-            rn = parse_op(ops[0])
+            rd = parse_op(ops[0])
             imm = parse_op(ops[1])
-            if rn < imm:
-                registers["PC"] += 4  # Skip next instruction
+            
+            res = rd - imm
+
+            flag_z = res == 0
+            flag_n = res < 0
         
         elif mnemonic == "RET":
             return
@@ -240,11 +265,7 @@ def emulate():
 
 def main():
     parse_file()
-    s = "Program Logic Flow:"
-    print(dash_line + "\n" + s.center(80) + "\n" + dash_line)
     emulate()
-    print_reg()
-    print_stack()
 
 
 
@@ -264,10 +285,10 @@ if __name__ == '__main__':
 
     # Init registers
     keys = [f"X{i}" for i in range(31)] + ["SP", "PC"]
-    registers = {key: 0 for key in keys}
+    registers = {key: 0x0 for key in keys}
 
-    n_bit = 0
-    z_bit = 0
+    flag_n = False
+    flag_z = False
 
     # Init stack
     stack_mem = [0] * 256
