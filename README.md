@@ -1,5 +1,5 @@
 # 6659-project-1
-Python ARM64 emulator
+Simplified ARM64 emulator
 
 ## Installation
 ```
