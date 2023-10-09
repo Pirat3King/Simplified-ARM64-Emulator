@@ -106,7 +106,7 @@ def parse_instr():
 
     line = code_lines[line_num]
 
-    print(f"Line #{line_num}: \t{line}")
+    #print(f"Line #{line_num}: \t{line}")
     
     # Split line into parts based on whitespace
     parts = line.split()
@@ -260,7 +260,7 @@ def emulate():
         
         print_reg()
         print_stack()
-        input("Press ENTER to continue: ")
+        input("\nPress ENTER to continue: \n")
 
         registers["PC"] += 4
 
