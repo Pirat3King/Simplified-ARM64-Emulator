@@ -175,6 +175,8 @@ def parse_op(op):
 def emulate():
     while True:
         mnemonic, ops = parse_instr()
+
+        print_task1((registers["PC"] // 4), mnemonic, ops)
             
         if mnemonic == "SUB":
             pass
@@ -256,7 +258,10 @@ def emulate():
         else:
             raise ValueError(f"Error: Mnemonic '{mnemonic}' not handled by this application")
         
-        
+        print_reg()
+        print_stack()
+        input("Press ENTER to continue: ")
+
         registers["PC"] += 4
 
 #################################################################
@@ -265,6 +270,8 @@ def emulate():
 
 def main():
     parse_file()
+    print_reg()
+    print_stack()
     emulate()
 
 
@@ -296,7 +303,7 @@ if __name__ == '__main__':
     # Init stack pointer
     registers["SP"] = len(stack_mem) - 1
 
-    # Store addrs for branches
+    # Store addrs for branching
     addresses = []
 
     # Store each line from input file
