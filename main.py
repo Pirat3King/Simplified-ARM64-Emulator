@@ -6,6 +6,7 @@ Date: 2023/10/04
 """
 
 import re
+import os
 import sys
 import argparse
 import hexdump
@@ -32,7 +33,7 @@ def print_reg():
     s = "Registers"
     print(dash_line + "\n" + s.center(80) + "\n" + dash_line)
 
-    # Print in 3 columns for easy reading
+    # Print in 3 columns for easy viewing
     col_width = max(len(k) for k in registers.keys()) + 1
     cols = 3
     rows = len(registers) // cols
@@ -88,6 +89,13 @@ def stack_pop():
         return value
     else:
         raise ValueError("Stack underflow")
+    
+# clear console for dynamic output
+def clearConsole():
+    command = 'clear'
+    if os.name in ('nt', 'dos'):  # If windows
+        command = 'cls'
+    os.system(command)
 
 #################################################################
 #                           Parsers
@@ -274,14 +282,6 @@ def emulate():
         input("\nPress ENTER to continue: \n")
 
         registers["PC"] += 4
-
-import os
-
-def clearConsole():
-    command = 'clear'
-    if os.name in ('nt', 'dos'):  # If computer is running windows use cls
-        command = 'cls'
-    os.system(command)
 
 #################################################################
 #                           Main
