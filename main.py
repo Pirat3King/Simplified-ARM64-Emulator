@@ -15,13 +15,11 @@ from pathlib import Path
 #                       Utilities
 #################################################################
 
-# Task 1 - Print parsed mnemonics
-# TODO find where to call this so every line prints (or change)
+# Task 1 - Print parsed instructions
 def print_task1(count, mnemonic, ops):
 
-    print("--------------------------------------")
-    print(f"Instruction #: {count}")
-    print("--------------------------------------")
+    s = f"Instruction #{count + 1}"
+    print(dash_line + "\n" + s.center(80) + "\n" + dash_line)
     print(f"Mnemonic: {mnemonic}")
 
     for i, op in enumerate(ops, start=1):
@@ -34,9 +32,20 @@ def print_reg():
     s = "Registers"
     print(dash_line + "\n" + s.center(80) + "\n" + dash_line)
 
-    for k, v in registers.items():
-        v_hex = f'0x{v:016x}'
-        print(f"{k}: {v_hex}")
+    # Print in 3 columns for easy reading
+    cols = 3
+    rows = len(registers) // cols
+    items = list(registers.items())
+
+    for r in range(rows):
+        for c in range(cols):
+            i = r + c * rows
+            if i < len(items):
+                key, value = items[i]
+                v_hex = f'0x{value:016x}'
+                print(f'{key}: {v_hex}', end='\t')
+        print()
+
     print(f"N bit: {int(flag_n)}")
     print(f"Z bit: {int(flag_z)}")
 
@@ -103,10 +112,7 @@ def parse_file():
 # Parse the line from the input file corresponding to the current PC into the mnemonic and operands
 def parse_instr(): 
     line_num = addresses.index(registers["PC"])
-
     line = code_lines[line_num]
-
-    #print(f"Line #{line_num}: \t{line}")
     
     # Split line into parts based on whitespace
     parts = line.split()
@@ -176,6 +182,7 @@ def emulate():
     while True:
         mnemonic, ops = parse_instr()
 
+        clearConsole()
         print_task1((registers["PC"] // 4), mnemonic, ops)
             
         if mnemonic == "SUB":
@@ -253,6 +260,8 @@ def emulate():
             flag_n = res < 0
         
         elif mnemonic == "RET":
+            print_reg()
+            print_stack()
             return
         
         else:
@@ -264,14 +273,20 @@ def emulate():
 
         registers["PC"] += 4
 
+import os
+
+def clearConsole():
+    command = 'clear'
+    if os.name in ('nt', 'dos'):  # If computer is running windows use cls
+        command = 'cls'
+    os.system(command)
+
 #################################################################
 #                           Main
 #################################################################
 
 def main():
     parse_file()
-    print_reg()
-    print_stack()
     emulate()
 
 
