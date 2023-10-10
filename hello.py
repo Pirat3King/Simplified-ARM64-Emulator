@@ -202,25 +202,30 @@ def emulate():
         if mnemonic == "SUB":
             rd = ops[0]
             rn = ops[1]
-            op2_str = ops[2]
-            op2_str = op2_str.replace('#', '').replace('X', '').lower()
-            try:
-                op2 = int(op2_str, 16)
-                registers[rd] = registers[rn] - op2
-            except ValueError:
-                raise ValueError("Error: Invalid hexadecimal format")
+            op2 = parse_op(ops[2])
+               
+            registers[rd] = registers[rn] - op2
 
+            flag_z= registers[rd] == 0
+            flag_n = (registers[rd] & (1 << 31)) != 0
+    
         elif mnemonic == "EOR":
             rd = ops[0]
             rn = ops[1]
             op2 = parse_op(ops[2])
             registers[rd] = registers[rn] ^ op2
 
+            flag_z= registers[rd] == 0
+            flag_n = (registers[rd] & (1 << 31)) != 0
+
         elif mnemonic == "ADD":
             rd = ops[0]
             rn = ops[1]
             op2 = parse_op(ops[2])
             registers[rd] = registers[rn] + op2
+
+            flag_z= registers[rd] == 0
+            flag_n = (registers[rd] & (1 << 31)) != 0
 
         elif mnemonic == "AND":
             rd = ops[0]
@@ -236,29 +241,28 @@ def emulate():
 
         elif mnemonic == "MOV":
             rd = ops[0]
-            op2_str = ops[1]
-            if op2_str.startswith('#0X'):
-                op2_str = op2_str[3:]
-            try:
-                op2 = int(op2_str, 16)
-                registers[rd] = op2
-            except ValueError:
-                raise ValueError("Error: Invalid hexadecimal format")
-
-        elif mnemonic == "STR":
-            if len(ops) != 2:
-                raise ValueError("Error: Incorrect number of operands for STR instruction")
+            op2 = parse_op(ops[1])
             
+            registers[rd] = op2
+
+        elif mnemonic == "STR":          
             rt = ops[0]  # Source register
             addr = parse_op(ops[1])  # Memory address
-            for i in range(8):
-                stack_mem[addr + i] = (registers[rt] >> (i * 8)) & 0xFF
-            print(stack_mem[addr+i])
+
+            if rt == "XZR":
+                for i in range(8):
+                    stack_mem[addr + i] = 0
+            else:
+                val = registers[rt]
+
+                for i in range(8):
+                    stack_mem[addr + i] = (val >> (i * 8))
 
         elif mnemonic == "STRB":
-            rt = parse_op(ops[0])
+            rt = ops[0]
             addr = parse_op(ops[1])
-            stack_mem[addr] = registers[rt] & 0xFF
+
+            stack_mem[addr] = registers[rt]
         
         elif mnemonic == "LDR":
             rt = ops[0]
@@ -289,16 +293,22 @@ def emulate():
                    
         elif mnemonic == "B":
             registers["PC"] = int(ops[0],16)
+            print_reg()
+            print_stack()
             continue
 
         elif mnemonic == "B.GT":
             if not flag_n and not flag_z:
                 registers["PC"] = int(ops[0],16)
+                print_reg()
+                print_stack()
                 continue
 
         elif mnemonic == "B.LE":
             if flag_n or flag_z:
                 registers["PC"] = int(ops[0],16)
+                print_reg()
+                print_stack()
                 continue
         
         elif mnemonic == "CMP":
