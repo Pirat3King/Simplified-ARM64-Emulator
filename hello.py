@@ -207,7 +207,7 @@ def emulate():
             registers[rd] = registers[rn] - op2
 
             flag_z= registers[rd] == 0
-            flag_n = (registers[rd] & (1 << 31)) != 0
+            flag_n = registers[rd] < 0
     
         elif mnemonic == "EOR":
             rd = ops[0]
@@ -216,7 +216,7 @@ def emulate():
             registers[rd] = registers[rn] ^ op2
 
             flag_z= registers[rd] == 0
-            flag_n = (registers[rd] & (1 << 31)) != 0
+            flag_n = registers[rd] < 0
 
         elif mnemonic == "ADD":
             rd = ops[0]
@@ -225,7 +225,7 @@ def emulate():
             registers[rd] = registers[rn] + op2
 
             flag_z= registers[rd] == 0
-            flag_n = (registers[rd] & (1 << 31)) != 0
+            flag_n = registers[rd] < 0
 
         elif mnemonic == "AND":
             rd = ops[0]
