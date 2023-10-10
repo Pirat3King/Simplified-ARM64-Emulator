@@ -193,6 +193,7 @@ def parse_op(op):
 # Instruction emulation
 # TODO the things
 def emulate():
+    global flag_n, flag_z
     while True:
         mnemonic, ops = parse_instr()
 
@@ -295,6 +296,7 @@ def emulate():
             registers["PC"] = int(ops[0],16)
             print_reg()
             print_stack()
+            input("\nPress ENTER to continue: \n")
             continue
 
         elif mnemonic == "B.GT":
@@ -302,6 +304,7 @@ def emulate():
                 registers["PC"] = int(ops[0],16)
                 print_reg()
                 print_stack()
+                input("\nPress ENTER to continue: \n")
                 continue
 
         elif mnemonic == "B.LE":
@@ -309,6 +312,7 @@ def emulate():
                 registers["PC"] = int(ops[0],16)
                 print_reg()
                 print_stack()
+                input("\nPress ENTER to continue: \n")
                 continue
         
         elif mnemonic == "CMP":
