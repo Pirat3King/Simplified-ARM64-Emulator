@@ -33,6 +33,7 @@ def print_reg():
     print(dash_line + "\n" + s.center(80) + "\n" + dash_line)
 
     # Print in 3 columns for easy reading
+    col_width = max(len(k) for k in registers.keys()) + 1
     cols = 3
     rows = len(registers) // cols
     items = list(registers.items())
@@ -42,8 +43,9 @@ def print_reg():
             i = r + c * rows
             if i < len(items):
                 key, value = items[i]
-                v_hex = f'0x{value:016x}'
-                print(f'{key}: {v_hex}', end='\t')
+                k = f"{key}:"
+                v_hex = f"0x{value:016x}"
+                print(f'{k:<{col_width}} {v_hex}', end='\t')
         print()
 
     print(f"N bit: {int(flag_n)}")
