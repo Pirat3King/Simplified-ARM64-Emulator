@@ -6,6 +6,7 @@ Date: 2023/10/04
 """
 
 import re
+import os
 import sys
 import argparse
 import hexdump
@@ -15,13 +16,11 @@ from pathlib import Path
 #                       Utilities
 #################################################################
 
-# Task 1 - Print parsed mnemonics
-# TODO find where to call this so every line prints (or change)
+# Task 1 - Print parsed instructions
 def print_task1(count, mnemonic, ops):
 
-    print("--------------------------------------")
-    print(f"Instruction #: {count}")
-    print("--------------------------------------")
+    s = f"Instruction #{count + 1}"
+    print(dash_line + "\n" + s.center(80) + "\n" + dash_line)
     print(f"Mnemonic: {mnemonic}")
 
     for i, op in enumerate(ops, start=1):
@@ -34,9 +33,22 @@ def print_reg():
     s = "Registers"
     print(dash_line + "\n" + s.center(80) + "\n" + dash_line)
 
-    for k, v in registers.items():
-        v_hex = f'0x{v:016x}'
-        print(f"{k}: {v_hex}")
+    # Print in 3 columns for easy viewing
+    col_width = max(len(k) for k in registers.keys()) + 1
+    cols = 3
+    rows = len(registers) // cols
+    items = list(registers.items())
+
+    for r in range(rows):
+        for c in range(cols):
+            i = r + c * rows
+            if i < len(items):
+                key, value = items[i]
+                k = f"{key}:"
+                v_hex = f"0x{value:016x}"
+                print(f'{k:<{col_width}} {v_hex}', end='\t')
+        print()
+
     print(f"N bit: {int(flag_n)}")
     print(f"Z bit: {int(flag_z)}")
 
@@ -77,6 +89,13 @@ def stack_pop():
         return value
     else:
         raise ValueError("Stack underflow")
+    
+# clear console for dynamic output
+def clearConsole():
+    command = 'clear'
+    if os.name in ('nt', 'dos'):  # If windows
+        command = 'cls'
+    os.system(command)
 
 #################################################################
 #                           Parsers
@@ -103,10 +122,7 @@ def parse_file():
 # Parse the line from the input file corresponding to the current PC into the mnemonic and operands
 def parse_instr(): 
     line_num = addresses.index(registers["PC"])
-
     line = code_lines[line_num]
-
-    #print(f"Line #{line_num}: \t{line}")
     
     # Split line into parts based on whitespace
     parts = line.split()
@@ -116,7 +132,6 @@ def parse_instr():
         
         mnemonic = parts[2].upper()
         ops = [i.upper() for i in parts[3:]]
-        # print(ops)
         
         # Combine pre-index operands back into a single operand because whitespace split
         if len(ops) >= 3 and ops[1].startswith('['):
@@ -143,7 +158,11 @@ def parse_op(op):
         return registers[op]
     
     elif op.startswith("W"): 
-        pass
+        reg_name = op[1:]        
+        if reg_name in registers:
+            # Read 64-bit register and zero-extend it to 32 bits
+            value = registers[reg_name] & 0xFFFFFFFF
+            return value
     
     elif op.startswith("#"):  # Immediate values
         op = op[1:]
@@ -177,6 +196,7 @@ def emulate():
     while True:
         mnemonic, ops = parse_instr()
 
+        clearConsole()
         print_task1((registers["PC"] // 4), mnemonic, ops)
             
         if mnemonic == "SUB":
@@ -193,46 +213,26 @@ def emulate():
         elif mnemonic == "EOR":
             rd = ops[0]
             rn = ops[1]
-            op2_str = ops[2]
-            op2_str = op2_str.replace('#', '').replace('X', '').lower()
-            try:
-                op2 = int(op2_str, 16)
-                registers[rd] = registers[rn] ^ op2
-            except ValueError:
-                raise ValueError("Error: Invalid hexadecimal format")
+            op2 = parse_op(ops[2])
+            registers[rd] = registers[rn] ^ op2
 
         elif mnemonic == "ADD":
             rd = ops[0]
             rn = ops[1]
-            op2_str = ops[2]
-            op2_str = op2_str.replace('#', '').replace('X', '').lower()
-            try:
-                op2 = int(op2_str, 16)
-                registers[rd] = registers[rn] + op2
-            except ValueError:
-                raise ValueError("Error: Invalid hexadecimal format")
+            op2 = parse_op(ops[2])
+            registers[rd] = registers[rn] + op2
 
         elif mnemonic == "AND":
             rd = ops[0]
             rn = ops[1]
-            op2_str = ops[2]
-            op2_str = op2_str.replace('#', '').replace('X', '').lower()
-            try:
-                op2 = int(op2_str, 16)
-                registers[rd] = registers[rn] & op2
-            except ValueError:
-                raise ValueError("Error: Invalid hexadecimal format")
+            op2 = parse_op(ops[2])
+            registers[rd] = registers[rn] & op2
         
         elif mnemonic == "MUL":
             rd = ops[0]
             rn = ops[1]
-            rm_str = ops[2]
-            rm_str = rm_str.replace('#', '').replace('X', '').lower()
-            try:
-                op2 = int(rm_str, 16)
-                registers[rd] = registers[rn] & op2
-            except ValueError:
-                raise ValueError("Error: Invalid hexadecimal format")
+            rm = ops[2]
+            registers[rd] = registers[rn] * registers[rm]
 
         elif mnemonic == "MOV":
             rd = ops[0]
@@ -246,12 +246,17 @@ def emulate():
                 raise ValueError("Error: Invalid hexadecimal format")
 
         elif mnemonic == "STR":
-            rt = ops[0]
-            addr = parse_op(ops[1])
-            stack_mem[addr:addr+8] = [(registers[rt] >> (i * 8)) & 0xFF for i in range(8)]
+            if len(ops) != 2:
+                raise ValueError("Error: Incorrect number of operands for STR instruction")
+            
+            rt = ops[0]  # Source register
+            addr = parse_op(ops[1])  # Memory address
+            for i in range(8):
+                stack_mem[addr + i] = (registers[rt] >> (i * 8)) & 0xFF
+            print(stack_mem[addr+i])
 
         elif mnemonic == "STRB":
-            rt = ops[0]
+            rt = parse_op(ops[0])
             addr = parse_op(ops[1])
             stack_mem[addr] = registers[rt] & 0xFF
         
@@ -306,6 +311,8 @@ def emulate():
             flag_n = res < 0
         
         elif mnemonic == "RET":
+            print_reg()
+            print_stack()
             return
         
         else:
@@ -323,8 +330,6 @@ def emulate():
 
 def main():
     parse_file()
-    print_reg()
-    print_stack()
     emulate()
 
 
