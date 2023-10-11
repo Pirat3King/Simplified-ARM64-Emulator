@@ -1,5 +1,5 @@
 """
-File: main.py
+File: emulator.py
 Authors: William Turner, Omkar Ashish Pednekar
 Brief: Simple ARM64 emulator
 Date: 2023/10/04
@@ -26,7 +26,6 @@ def print_task1(count, mnemonic, ops):
     for i, op in enumerate(ops, start=1):
         print(f"Operand #{i}: {op}")
         
-
 # Print current register values
 def print_reg():
     # Pretty header
@@ -229,7 +228,6 @@ def emulate():
             else:
                 registers[rd] = rn * rm
             
-
         elif mnemonic == "MOV":
             rd = ops[0]
             op2 = parse_op(ops[1])
