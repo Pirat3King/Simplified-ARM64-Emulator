@@ -8,7 +8,7 @@ pip install -r requirements.txt
 
 ## Usage
 ```
-python3 ./main.py <file>
+python3 ./emulator.py <file>
 ```
 
 Input file must be in the ```objdump``` format, starting on address ```0```
