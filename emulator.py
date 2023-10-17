@@ -1,6 +1,6 @@
 """
 File: emulator.py
-Authors: William Turner, Omkar Ashish Pednekar
+Authors: Pirat3King, 133t0mkar
 Brief: Simple ARM64 emulator
 Date: 2023/10/04
 """
