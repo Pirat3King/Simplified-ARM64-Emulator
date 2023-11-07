@@ -1,4 +1,4 @@
-# About
+## About
 Simplified ARM64 emulator
 
 ## Installation
