@@ -1,4 +1,4 @@
-# 6659-project-1
+# About
 Simplified ARM64 emulator
 
 ## Installation
